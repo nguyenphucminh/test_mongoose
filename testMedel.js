@@ -7,10 +7,10 @@ const AccountSchema = new Schema({
     name: String,
     age: Number,
     pass: String,
-    courses: {
-        type: String,
-        ref: 'courses'
-    }
+    // courses: {
+    //     type: String,
+    //     ref: 'courses'
+    // }
 },{
     collection: 'account'
 });
@@ -28,11 +28,12 @@ const CoursesSchema = new Schema({
 const AccountModel = mongoose.model('account', AccountSchema)
 const CoursesModel = mongoose.model('courses', CoursesSchema) 
 
-AccountModel.find({
-    name: 'minh'
-})
-.populate('courses')
-.then(data=>{
-    console.log(data)
-})
-.catch(err=> console.log(err))
+
+// AccountModel.find({
+//     name: 'minh'
+// })
+// .populate('courses')
+// .then(data=>{
+//     console.log(data)
+// })
+// .catch(err=> console.log(err))
