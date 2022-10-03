@@ -61,3 +61,12 @@ Model.find({
     field: {$ne: value}
 })
 ```
+
+## equal
+```
+Model.find({
+    field: {$eq: value}
+})
+
+
+```
