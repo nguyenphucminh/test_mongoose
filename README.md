@@ -54,3 +54,10 @@ Model.find({
     salary: {$in: [1000, 2000]}
 })
 ```
+
+## not equal
+```
+Model.find({
+    field: {$ne: value}
+})
+```
