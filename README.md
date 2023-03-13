@@ -166,3 +166,6 @@ secondary node: mọi read request chỉ đi đến các secondary node.
 secondary nodePreferred: mọi read request sẽ đi đến secondary node nhưng nếu tất cả các secondary node down nó sẽ đi đến primary node.
 
 nearest: read request sẽ đến node có network latency thấp nhất không phân biết node đó là primary node hay secondary node. Tham số read preference bạn sẽ khai báo từ application.
+
+
+https://viblo.asia/p/replica-set-mongodb-LzD5dAQ0KjY
