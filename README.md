@@ -169,3 +169,67 @@ nearest: read request sẽ đến node có network latency thấp nhất không 
 
 #### link hướng dẫn
 https://viblo.asia/p/replica-set-mongodb-LzD5dAQ0KjY
+
+## CÁCH CONFIG REPLICATE SET MONGODB
+Tạo một mạng chung
+```
+docker network create mongoNet
+docker network ls
+```
+Kiểm tra subnet mark
+```
+docker network inspect mongoNet | grep Subnet   ("Subnet": "172.18.0.0/16")
+```
+Tạo 3 container mongo
+```
+docker run -d -p 27017:27017 --net mongoNet --name r0 mongo:latest --replSet mongoRepSet
+docker run -d -p 27018:27017 --net mongoNet --name r1 mongo:latest --replSet mongoRepSet
+docker run -d -p 27019:27017 --net mongoNet --name r2 mongo:latest --replSet mongoRepSet
+```
+Kiêm tra ip address của từng container trong mạng mongoNet
+```
+docker inspect --format '{{ .NetworkSettings.Networks.mongoNet.IPAddress }}' mongo1
+172.18.0.2
+docker inspect --format '{{ .NetworkSettings.Networks.mongoNet.IPAddress }}' mongo2
+172.18.0.3
+docker inspect --format '{{ .NetworkSettings.Networks.mongoNet.IPAddress }}' mongo3
+172.18.0.4
+```
+Cập nhật hostname trong /etc/hosts
+```
+sudo nano /etc/hosts
+```
+Thêm ip address của container vào hosts, sau khi fill xong -> Ctrl + O, Ctrl + M, Ctrl + X
+```
+# generateHosts = false
+127.0.0.1       localhost
+127.0.1.1       PHUCMINH.localdomain    PHUCMINH
+
+192.168.1.132   host.docker.internal
+172.18.0.2      mongo1
+172.18.0.3      mongo2
+172.18.0.4      mongo3
+```
+Truy cập vào container mongo1 
+```
+docker exec -it mongo1 bash
+```
+Truy cập vào mongo
+```
+mongosh
+```
+Cấu hình cho reqlicate 
+```
+test> config = {
+     "_id": "mongoRepSet",
+     "members": [
+         { "_id": 0, "host": "172.18.0.2:27017" },
+         { "_id": 1, "host": "172.18.0.3:27017" },
+         { "_id": 2, "host": "172.18.0.4:27017" }
+     ]
+}
+```
+Khởi tạo
+```
+ rs.initiate(config)
+```
