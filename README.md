@@ -182,9 +182,9 @@ docker network inspect mongoNet | grep Subnet   ("Subnet": "172.18.0.0/16")
 ```
 Tạo 3 container mongo
 ```
-docker run -d -p 27017:27017 --net mongoNet --name r0 mongo:latest --replSet mongoRepSet
-docker run -d -p 27018:27017 --net mongoNet --name r1 mongo:latest --replSet mongoRepSet
-docker run -d -p 27019:27017 --net mongoNet --name r2 mongo:latest --replSet mongoRepSet
+docker run -d -p 10000:27017 --net mongoNet --name r0 mongo:latest --replSet mongoRepSet
+docker run -d -p 20000:27017 --net mongoNet --name r1 mongo:latest --replSet mongoRepSet
+docker run -d -p 30000:27017 --net mongoNet --name r2 mongo:latest --replSet mongoRepSet
 ```
 Kiêm tra ip address của từng container trong mạng mongoNet
 ```
@@ -195,20 +195,9 @@ docker inspect --format '{{ .NetworkSettings.Networks.mongoNet.IPAddress }}' mon
 docker inspect --format '{{ .NetworkSettings.Networks.mongoNet.IPAddress }}' mongo3
 172.18.0.4
 ```
-Cập nhật hostname trong /etc/hosts
+Kiêm tra ip addresscủa wsl
 ```
-sudo nano /etc/hosts
-```
-Thêm ip address của container vào hosts, sau khi fill xong -> Ctrl + O, Ctrl + M, Ctrl + X
-```
-# generateHosts = false
-127.0.0.1       localhost
-127.0.1.1       PHUCMINH.localdomain    PHUCMINH
-
-192.168.1.132   host.docker.internal
-172.18.0.2      mongo1
-172.18.0.3      mongo2
-172.18.0.4      mongo3
+ifconfig (192.168.0.1)
 ```
 Truy cập vào container mongo1 
 ```
@@ -223,9 +212,9 @@ Cấu hình cho reqlicate
 test> config = {
      "_id": "mongoRepSet",
      "members": [
-         { "_id": 0, "host": "172.18.0.2:27017" },
-         { "_id": 1, "host": "172.18.0.3:27017" },
-         { "_id": 2, "host": "172.18.0.4:27017" }
+         { "_id": 0, "host": "192.168.0.1:10000" },
+         { "_id": 1, "host": "192.168.0.1:20000" },
+         { "_id": 2, "host": "192.168.0.1:30000" }
      ]
 }
 ```
@@ -236,128 +225,4 @@ rs.initiate(config)
 Kiểm tra 
 ```
 rs.status()
-```
-<details>
-<summary>Đây là kết quả</summary>
-<code>
-mongoRepSet [direct: secondary] test> show dbs
-admin    80.00 KiB
-config   68.00 KiB
-local   436.00 KiB
-mongoRepSet [direct: primary] test> rs.status()
-{
-  set: 'mongoRepSet',
-  date: ISODate("2023-03-15T07:53:24.768Z"),
-  myState: 1,
-  term: Long("1"),
-  syncSourceHost: '',
-  syncSourceId: -1,
-  heartbeatIntervalMillis: Long("2000"),
-  majorityVoteCount: 2,
-  writeMajorityCount: 2,
-  votingMembersCount: 3,
-  writableVotingMembersCount: 3,
-  optimes: {
-    lastCommittedOpTime: { ts: Timestamp({ t: 1678866797, i: 1 }), t: Long("1") },
-    lastCommittedWallTime: ISODate("2023-03-15T07:53:17.843Z"),
-    readConcernMajorityOpTime: { ts: Timestamp({ t: 1678866797, i: 1 }), t: Long("1") },
-    appliedOpTime: { ts: Timestamp({ t: 1678866797, i: 1 }), t: Long("1") },
-    durableOpTime: { ts: Timestamp({ t: 1678866797, i: 1 }), t: Long("1") },
-    lastAppliedWallTime: ISODate("2023-03-15T07:53:17.843Z"),
-    lastDurableWallTime: ISODate("2023-03-15T07:53:17.843Z")
-  },
-  lastStableRecoveryTimestamp: Timestamp({ t: 1678866797, i: 1 }),
-  electionCandidateMetrics: {
-    lastElectionReason: 'electionTimeout',
-    lastElectionDate: ISODate("2023-03-15T06:52:27.322Z"),
-    electionTerm: Long("1"),
-    lastCommittedOpTimeAtElection: { ts: Timestamp({ t: 1678863136, i: 1 }), t: Long("-1") },
-    lastSeenOpTimeAtElection: { ts: Timestamp({ t: 1678863136, i: 1 }), t: Long("-1") },
-    numVotesNeeded: 2,
-    priorityAtElection: 1,
-    electionTimeoutMillis: Long("10000"),
-    numCatchUpOps: Long("0"),
-    newTermStartDate: ISODate("2023-03-15T06:52:27.481Z"),
-    wMajorityWriteAvailabilityDate: ISODate("2023-03-15T06:52:28.226Z")
-  },
-  members: [
-    {
-      _id: 0,
-      name: '172.18.0.2:27017',
-      health: 1,
-      state: 1,
-      stateStr: 'PRIMARY',
-      uptime: 4075,
-      optime: { ts: Timestamp({ t: 1678866797, i: 1 }), t: Long("1") },
-      optimeDate: ISODate("2023-03-15T07:53:17.000Z"),
-      lastAppliedWallTime: ISODate("2023-03-15T07:53:17.843Z"),
-      lastDurableWallTime: ISODate("2023-03-15T07:53:17.843Z"),
-      syncSourceHost: '',
-      syncSourceId: -1,
-      infoMessage: '',
-      electionTime: Timestamp({ t: 1678863147, i: 1 }),
-      electionDate: ISODate("2023-03-15T06:52:27.000Z"),
-      configVersion: 1,
-      configTerm: 1,
-      self: true,
-      lastHeartbeatMessage: ''
-    },
-    {
-      _id: 1,
-      name: '172.18.0.3:27017',
-      health: 1,
-      state: 2,
-      stateStr: 'SECONDARY',
-      uptime: 3668,
-      optime: { ts: Timestamp({ t: 1678866797, i: 1 }), t: Long("1") },
-      optimeDurable: { ts: Timestamp({ t: 1678866797, i: 1 }), t: Long("1") },
-      optimeDate: ISODate("2023-03-15T07:53:17.000Z"),
-      optimeDurableDate: ISODate("2023-03-15T07:53:17.000Z"),
-      lastAppliedWallTime: ISODate("2023-03-15T07:53:17.843Z"),
-      lastDurableWallTime: ISODate("2023-03-15T07:53:17.843Z"),
-      lastHeartbeat: ISODate("2023-03-15T07:53:23.894Z"),
-      lastHeartbeatRecv: ISODate("2023-03-15T07:53:24.641Z"),
-      pingMs: Long("0"),
-      lastHeartbeatMessage: '',
-      syncSourceHost: '172.18.0.2:27017',
-      syncSourceId: 0,
-      infoMessage: '',
-      configVersion: 1,
-      configTerm: 1
-    },
-    {
-      _id: 2,
-      name: '172.18.0.4:27017',
-      health: 1,
-      state: 2,
-      stateStr: 'SECONDARY',
-      uptime: 3668,
-      optime: { ts: Timestamp({ t: 1678866797, i: 1 }), t: Long("1") },
-      optimeDurable: { ts: Timestamp({ t: 1678866797, i: 1 }), t: Long("1") },
-      optimeDate: ISODate("2023-03-15T07:53:17.000Z"),
-      optimeDurableDate: ISODate("2023-03-15T07:53:17.000Z"),
-      lastAppliedWallTime: ISODate("2023-03-15T07:53:17.843Z"),
-      lastDurableWallTime: ISODate("2023-03-15T07:53:17.843Z"),
-      lastHeartbeat: ISODate("2023-03-15T07:53:23.894Z"),
-      lastHeartbeatRecv: ISODate("2023-03-15T07:53:24.644Z"),
-      pingMs: Long("0"),
-      lastHeartbeatMessage: '',
-      syncSourceHost: '172.18.0.2:27017',
-      syncSourceId: 0,
-      infoMessage: '',
-      configVersion: 1,
-      configTerm: 1
-    }
-  ],
-  ok: 1,
-  '$clusterTime': {
-    clusterTime: Timestamp({ t: 1678866797, i: 1 }),
-    signature: {
-      hash: Binary(Buffer.from("0000000000000000000000000000000000000000", "hex"), 0),
-      keyId: Long("0")
-    }
-  },
-  operationTime: Timestamp({ t: 1678866797, i: 1 })
-}
-</code>
-</details>
+
