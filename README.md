@@ -225,4 +225,10 @@ rs.initiate(config)
 Kiểm tra 
 ```
 rs.status()
-
+```
+Kêt nối chuỗi (tìm primary mongo)
+```
+MONGO_URI=mongodb://172.26.119.55:10000/modern_ecommerce
+```
+Link Hướng Dẫn
+https://www.youtube.com/watch?v=fQPB5TPqcGM&t=804s&ab_channel=TipsJavascript
